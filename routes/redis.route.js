@@ -1,7 +1,8 @@
 const router = require("express").Router();
+const axios = require("axios");
+
 const redis = require("redis");
 const client = redis.createClient();
-const axios = require("axios");
 
 const base_data = [
   {
@@ -34,6 +35,85 @@ router.get("/", function (req, res) {
 
     redis_host: client.host,
     redis_port: client.port,
+  });
+});
+
+router.post("/cart/add", function (req, res) {
+  const body_data = {
+    cart_id: req.body.cart_id,
+    user_id: req.body.user_id,
+    pro_id: req.body.pro_id,
+  };
+  //  user id
+  client.set(
+    `cart:${body_data.cart_id}:user_id`,
+    body_data.user_id,
+    redis.print
+  );
+  client.set(`cart:${body_data.cart_id}:pro_id`, body_data.pro_id, redis.print);
+  client.MGET(
+    [`cart:${body_data.cart_id}:pro_id`, `cart:${body_data.cart_id}:user_id`],
+    function (er, ret) {
+      console.log(ret);
+      return res.json({
+        data_added: {
+          cart_id: body_data.cart_id,
+          pro_id: ret[0],
+          user_id: ret[1],
+        },
+      });
+    }
+  );
+
+  // pro id
+});
+
+router.get("/basket/getBasket", function (req, res) {
+  const redisConfig = require("../config/redis.config");
+  redisConfig.createConnection().then(function (client) {
+    client.hgetall("basket", (er, ret) => {
+      if (ret) {
+        res.json({
+          data: ret,
+        });
+      } else {
+        res.json({
+          er,
+        });
+      }
+    });
+  });
+});
+
+router.post("/basket/add", function (req, res) {
+  const redisConfig = require("../config/redis.config");
+
+  redisConfig.createConnection().then(function (client) {
+    const basket = JSON.stringify(req.body.basket);
+    const basket_cart_id = req.body.basket_cart_id;
+
+    client.hset(basket_cart_id, "basket", basket, redis.print);
+
+    client.hgetall(basket_cart_id, (er, ret) => {
+      if (ret) {
+        res.json({
+          full_data: ret,
+          data: JSON.parse(ret.basket),
+        });
+      } else {
+        res.json({
+          er,
+        });
+      }
+    });
+
+    client.quit((er, rep) => {
+      if (!er) {
+        console.log(rep);
+      } else {
+        console.log(er);
+      }
+    });
   });
 });
 
