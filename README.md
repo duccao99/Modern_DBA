@@ -1,2 +1,3 @@
 # Modern_DBA
-Modern Database Aministrator - Project 
+
+Modern database administrator course's project
