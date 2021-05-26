@@ -2,9 +2,9 @@ const express = require("express");
 const cors = require("cors");
 const path = require('path');
 const responseTime = require("response-time");
-
 const app = express();
 
+app.use(express.urlencoded());
 app.use(express.json());
 app.use(cors());
 app.use(responseTime());
