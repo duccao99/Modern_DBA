@@ -38,18 +38,16 @@ app.use(
   })
 );
 
-app.get('/', function (req, res) {
-  res.render('vwHome/HomePage', {
-    layout: 'layout'
-  });
-});
+require('./config/mongoose.config');
 
-// app.use("/api/redis", require("./routes/redis.route"));
 app.use('/2287', (req, res) => {
   res.sendFile(path.join(__dirname, './assets/html/2287index.html'));
 });
 app.use('/api/2287', require('./routes/mongodb.route'));
 
+app.use('/', require('./routes/home.route'));
+// app.use("/api/redis", require("./routes/redis.route"));
+app.use('/api/product', require('./routes/product.route'));
 app.use('/api/cart', require('./routes/cart.route'));
 
 app.use(function (er, req, res, next) {
