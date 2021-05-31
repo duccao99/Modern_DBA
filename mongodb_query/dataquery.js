@@ -1,4 +1,4 @@
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 var ObjectID = require('mongodb').ObjectID;
 var config = require('../config/mongodb.config');
 const uri = config.mongodb;
@@ -14,7 +14,6 @@ let getDetail = async(productId)=>{
         throw err;
     }
 } 
-
 let getByCategory = async(categoryId,skip = 0, limit = 30)=>{
     try{
         const client = new MongoClient(uri, { useUnifiedTopology: true } );
@@ -26,7 +25,6 @@ let getByCategory = async(categoryId,skip = 0, limit = 30)=>{
         throw err;
     }
 }
-
 let getCategory = async(categoryId) => {
     try{
         const client = new MongoClient(uri, { useUnifiedTopology: true } );
@@ -38,7 +36,6 @@ let getCategory = async(categoryId) => {
         throw err;
     }
 }
-
 let postCategory = async(data)=>{
     try{
         const client = new MongoClient(uri, { useUnifiedTopology: true } );
@@ -72,11 +69,16 @@ let postCategory = async(data)=>{
         throw err;
     }
 }
-
 let postProduct = async(data) => {
     try{
         const client = new MongoClient(uri, { useUnifiedTopology: true } );
         await client.connect({native_parser:true});
+        const auth = await client.db("qtcsdlhd").collection("Shop").findOne({
+            '_id':ObjectID(data.shopId),'userId':ObjectID(data.userId)},
+            { projection: { shopName: 1 } })
+        if(!auth){
+            throw err;
+        }
         const category = await client.db("qtcsdlhd").collection("category").findOne({'_id':ObjectID(data.categoryId)})
         var breadcrumbs = []
         category.ancestors.forEach(element => {
@@ -99,9 +101,16 @@ let postProduct = async(data) => {
                 "https://images-na.ssl-images-amazon.com/images/I/41FuQMh3FUL.jpg"
             ],
             "option_attributes": op_atr,
-            "breadcrumbs": breadcrumbs
+            "breadcrumbs": breadcrumbs,
+            "shop": auth, 
         }
         const result = await client.db("qtcsdlhd").collection("product").insertOne(document)
+        const res = await client.db("qtcsdlhd").collection("Shop").updateOne({
+            '_id':ObjectID(data.shopId),'userId':ObjectID(data.userId)
+        },
+        {
+            '$push': {"products":{'_id':result.ops[0]._id,'name':result.ops[0].name,"breadcrumbs": result.ops[0].breadcrumbs}}
+        })
         await client.close();
         return result;
     } catch(err){
@@ -112,16 +121,28 @@ let postReview = async(data) => {
     try{
         const client = new MongoClient(uri, { useUnifiedTopology: true } );
         await client.connect({native_parser:true});
-        const check = await client.db("qtcsdlhd").collection("review").findOne({'object':ObjectID(data.objectId)});
-        if(check){
+        const flag = await client.db("qtcsdlhd").collection("review").findOne({
+            'object':ObjectID(data.objectId),
+            "reviews.user" : { $in : [ObjectID(data.userId)]}         
+        }) 
+        if(flag){
+            // xu li khi da review
+            await client.close();
             throw err;
         }
-        var review = {
-            'user': 'user',
-            'object': ObjectID(data.objectId),
-            'content': data.content 
-        }
-        const result = await client.db("qtcsdlhd").collection("review").insertOne(review);
+        const rev = {
+            "user": ObjectID(data.userId),
+            "content": "sp dowr teej",
+            "star": 1 * data.star
+        };
+        const result = await client.db("qtcsdlhd").collection("review").updateOne({
+            'object':ObjectID(data.objectId),         
+        },{
+            "$push":{"reviews":rev},
+            "$inc": {"rateValue": 1,"rateCount": rev.star}
+        },
+        { upsert: true }
+        );
         await client.close();
         return result;
     } catch(err){

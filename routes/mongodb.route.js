@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const Dbquery = require("../mongodb_query/dataquery");
+const AuthMiddleWare = require("../middleware/auth")
 
 
 //get category by id
@@ -44,8 +45,9 @@ router.get("/product/:productId",async(req,res)=>{
     }
 }); 
 // post product 
-router.post("/product",async(req,res)=>{
+router.post("/product",AuthMiddleWare.isShop,async(req,res)=>{
     try{
+        req.body.userId = req.decoded['id'];
         const result = await Dbquery.postProduct(req.body);
         return res.status(200).json(result);
     } catch(error){
@@ -54,8 +56,9 @@ router.post("/product",async(req,res)=>{
     }
 })
 // post a reviews 
-router.post("/review",async(req,res)=>{
+router.post("/review",AuthMiddleWare.isAuth,async(req,res)=>{
     try{
+        req.body.userId = req.decoded['id'];
         const result = await Dbquery.postReview(req.body);
         return res.status(200).json(result);
     } catch(error){
@@ -63,4 +66,16 @@ router.post("/review",async(req,res)=>{
         return res.status(500).json(error);
     }
 })
+// router.post("/initshop",AuthMiddleWare.isAuth,async(req,res)=>{
+//     try{
+//         req.body.userId = req.decoded['id'];
+//         const result = await Dbquery.postShop(req.body);
+//         return res.status(200).json(result);
+//     } catch(error){
+//         console.log(error);
+//         return res.status(500).json(error);
+//     }
+// })
+
+
 module.exports = router;
