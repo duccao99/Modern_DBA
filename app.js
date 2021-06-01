@@ -4,14 +4,14 @@ const cors = require('cors');
 const path = require('path');
 const responseTime = require('response-time');
 const app = express();
-const bodyParser = require('body-parser');
 const expressHandlebarsSections = require('express-handlebars-sections');
 const expressSession = require('express-session');
 const expressHandlebars = require('express-handlebars');
+const bodyParser = require('body-parser');
 
 require('express-async-errors');
-
-app.use(express.urlencoded());
+app.use(bodyParser.json({ type: 'application/*+json' }));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cors());
 app.use(responseTime());
