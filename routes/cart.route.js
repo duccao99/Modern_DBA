@@ -2,11 +2,20 @@ const router = require('express').Router();
 const redis = require('redis');
 const db = redis.createClient();
 
+/*
+ * Command
+    1. sadd key value - add data
+    2. smembers key - get all data
+    3. FLUSHDB - clear db
+*/
+
 router.get('/add-to-cart', async function (req, res) {
   res.render('vwCart/vwAddToCart', {
     layout: 'layout'
   });
 });
+
+router.get('/', async function (req, res) {});
 
 router.post('/', async function (req, res) {
   if (!req.body.user_id || !req.body.pro_id) {

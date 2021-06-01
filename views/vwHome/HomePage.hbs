@@ -16,25 +16,46 @@
     <p class="card-text">Price: {{this.price}}</p>
     <p class="card-text">Category: {{this.category}}</p>
 
-
-    <a href="#" class="btn btn-primary">Add to cart</a>
+    <input type="text" class="d-none pro_ids" name="pro_id"  value="{{this.proId}}" >
+    <button class="btn btn-primary btnAddToCart"  value="{{this.proId}}" >Add to cart</button>
   </div>
 </div>
-
-
-
-
-
-
-    
-
             </div>
         {{/each}}
         </div>
-
-
-
-
     </div>
 
 </div>
+
+{{#section 'js'}}
+<script>
+    const btnAddToCart=$(".btnAddToCart");
+
+    for(let i=0;i<btnAddToCart.length;++i){
+        btnAddToCart[i].onclick=function(e){
+      const data={
+            user_id:"user_10",
+            pro_id:btnAddToCart[i].value
+        }
+
+    console.log(data);
+        $.ajax({
+            url:"/api/cart",
+            method:"post",
+            data,
+            error:er=>{
+                console.log(er);
+            },
+            success:ret=>{
+                console.log(ret);
+            
+                alert("Add success!")
+            }
+        })
+        }
+  
+    }
+
+
+</script>
+{{/section}}

@@ -21,6 +21,8 @@ router.get('/', async function (req, res) {
 
   let product_ret = [];
 
+  // console.log(products);
+
   for (let i = 0; i < products.length; ++i) {
     const templateProName = handlebars.compile('{{this.proName}}');
     const retProName = templateProName({ proName: products[i].proName });
@@ -36,7 +38,13 @@ router.get('/', async function (req, res) {
       avatarUrl: products[i].avatarUrl
     });
 
+    const templateProId = handlebars.compile('{{this.proId}}');
+    const retProId = templateProId({
+      proId: products[i]._id
+    });
+
     product_ret.push({
+      proId: retProId,
       proName: retProName,
       price: retPrice,
       category: retCategory,
