@@ -46,7 +46,7 @@ app.use('/2287', (req, res) => {
 app.use('/api/2287', require('./routes/mongodb.route'));
 
 app.use('/', require('./routes/home.route'));
-// app.use("/api/redis", require("./routes/redis.route"));
+app.use('/api/onboarding', require('./routes/onboard.route'));
 app.use('/api/product', require('./routes/product.route'));
 app.use('/api/cart', require('./routes/cart.route'));
 

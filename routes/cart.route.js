@@ -9,6 +9,7 @@ const handlebars = require('handlebars');
     1. sadd key value - add data
     2. smembers key - get all data
     3. FLUSHDB - clear db
+    4. Cannot create database in redis - show db - config get databases
 */
 router.get('/', async function (req, res) {
   db.smembers('cart_id:3:pro_id', async (er, ret) => {
