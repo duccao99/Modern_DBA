@@ -1,156 +1,106 @@
 const router = require('express').Router();
-const axios = require('axios');
-
 const redis = require('redis');
-const client = redis.createClient();
+const db = redis.createClient();
+const proModel = require('../models/product.model');
+const handlebars = require('handlebars');
 
-const base_data = [
-  {
-    cart_id: 1,
-    user_id: 1,
-    pro_id: 1
-  },
-  {
-    cart_id: 2,
-    user_id: 2,
-    pro_id: 2
-  }
-];
-
-router.get('/', function (req, res) {
-  client.on('error', function (er) {
-    console.log(er, 'host: ' + client.host, '\nport: ' + client.port);
-  });
-
-  client.set('key', 'value', redis.print);
-  client.hset('hash key', 'hash test 1', 'value', redis.print);
-  client.hset(['hash key 2', 'hash test 2', 'value 2'], redis.print);
-
-  client.quit(function (er, res) {
-    console.log('Exiting from quit command');
-  });
-
-  res.json({
-    message: 'redis api',
-
-    redis_host: client.host,
-    redis_port: client.port
-  });
-});
-
-router.post('/cart/add', function (req, res) {
-  const body_data = {
-    cart_id: req.body.cart_id,
-    user_id: req.body.user_id,
-    pro_id: req.body.pro_id
-  };
-  //  user id
-  client.set(
-    `cart:${body_data.cart_id}:user_id`,
-    body_data.user_id,
-    redis.print
-  );
-  client.set(`cart:${body_data.cart_id}:pro_id`, body_data.pro_id, redis.print);
-  client.MGET(
-    [`cart:${body_data.cart_id}:pro_id`, `cart:${body_data.cart_id}:user_id`],
-    function (er, ret) {
+/*
+ * Command
+    1. sadd key value - add data
+    2. smembers key - get all data
+    3. FLUSHDB - clear db
+    4. Cannot create database in redis - show db - config get databases
+*/
+router.get('/', async function (req, res) {
+  db.smembers('cart_id:3:pro_id', async (er, ret) => {
+    if (er) {
+      return res.status(500).json({
+        message: er
+      });
+    } else {
+      const cart = ret;
       console.log(ret);
-      return res.json({
-        data_added: {
-          cart_id: body_data.cart_id,
-          pro_id: ret[0],
-          user_id: ret[1]
-        }
+      let cart_data = [];
+
+      for (let i = 0; i < cart.length; ++i) {
+        const pro = await proModel.find({
+          _id: cart[i]
+        });
+
+        const templateProName = handlebars.compile('{{this.proName}}');
+        const retProName = templateProName({ proName: pro[0].proName });
+
+        const templatePrice = handlebars.compile('{{this.price}}');
+        const retPrice = templatePrice({ price: pro[0].price });
+
+        const templateCategory = handlebars.compile('{{this.category}}');
+        const retCategory = templateCategory({ category: pro[0].category });
+
+        const templateAvatarUrl = handlebars.compile('{{this.avatarUrl}}');
+        const retAvatarUrl = templateAvatarUrl({
+          avatarUrl: pro[0].avatarUrl
+        });
+
+        const templateProId = handlebars.compile('{{this.proId}}');
+        const retProId = templateProId({
+          proId: pro[0]._id
+        });
+
+        cart_data.push({
+          proId: retProId,
+          proName: retProName,
+          price: retPrice,
+          category: retCategory,
+          avatarUrl: retAvatarUrl
+        });
+      }
+      console.log(cart_data);
+
+      return res.render('vwCart/vwCart', {
+        layout: 'layout',
+        cart: cart_data
       });
     }
-  );
-
-  // pro id
-});
-
-router.get('/basket/getBasket', function (req, res) {
-  const redisConfig = require('../config/redis.config');
-  redisConfig.createConnection().then(function (client) {
-    client.hgetall('basket', (er, ret) => {
-      if (ret) {
-        res.json({
-          data: ret
-        });
-      } else {
-        res.json({
-          er
-        });
-      }
-    });
   });
 });
 
-router.post('/basket/add', function (req, res) {
-  const redisConfig = require('../config/redis.config');
-
-  redisConfig.createConnection().then(function (client) {
-    const basket = JSON.stringify(req.body.basket);
-    const basket_cart_id = req.body.basket_cart_id;
-
-    client.hset(basket_cart_id, 'basket', basket, redis.print);
-
-    client.hgetall(basket_cart_id, (er, ret) => {
-      if (ret) {
-        res.json({
-          full_data: ret,
-          data: JSON.parse(ret.basket)
-        });
-      } else {
-        res.json({
-          er
-        });
-      }
-    });
-
-    client.quit((er, rep) => {
-      if (!er) {
-        console.log(rep);
-      } else {
-        console.log(er);
-      }
-    });
+router.get('/add-to-cart', async function (req, res) {
+  res.render('vwCart/vwAddToCart', {
+    layout: 'layout'
   });
 });
 
-router.get('/search', function (req, res) {
-  // Extract the query from url and trim trailing spaces
-  console.log(req.query);
-  const query = req.query.query.trim();
-  // Build the Wikipedia API url
-  const searchUrl = `https://en.wikipedia.org/w/api.php?action=parse&format=json&section=0&page=${query}`;
+router.post('/', async function (req, res) {
+  if (!req.body.user_id || !req.body.pro_id) {
+    return res.status(400).json({
+      message: 'Invalid data post!'
+    });
+  }
 
-  // Try fetching the result from Redis first in case we have it cached
-  return client.get(`wikipedia:${query}`, (err, result) => {
-    // If that key exist in Redis store
-    if (result) {
-      const resultJSON = JSON.parse(result);
-      return res.status(200).json(resultJSON);
+  const data = {
+    user_id: req.body.user_id,
+    cart_id: 1,
+    pro_id: req.body.pro_id
+  };
+
+  db.sadd(`cart_id:3:pro_id`, data.pro_id, (er, ret_proId) => {
+    if (er) {
+      return res.status(500).json({
+        message: er
+      });
     } else {
-      // Key does not exist in Redis store
-      // Fetch directly from Wikipedia API
-      return axios
-        .get(searchUrl)
-        .then((response) => {
-          const responseJSON = response.data;
-          // Save the Wikipedia API response in Redis store
-          client.setex(
-            `wikipedia:${query}`,
-            3600,
-            JSON.stringify({ source: 'Redis Cache', ...responseJSON })
-          );
-          // Send JSON response to client
-          return res
-            .status(200)
-            .json({ source: 'Wikipedia API', ...responseJSON });
-        })
-        .catch((err) => {
-          return res.json(err);
-        });
+      db.sadd(`cart_id:3:user_id`, data.user_id, (er, ret_userId) => {
+        if (er) {
+          return res.status(500).json({
+            message: er
+          });
+        } else {
+          return res.json({
+            ret_add_proId: ret_proId,
+            ret_add_userId: ret_userId
+          });
+        }
+      });
     }
   });
 });
