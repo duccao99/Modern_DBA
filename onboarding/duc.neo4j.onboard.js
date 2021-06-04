@@ -62,6 +62,43 @@ const neo4jDriver = require('neo4j-driver');
  *
  */
 
+/**
+ * CREATE - command
+ *
+ * 1. Create a node person
+ * create (n:Person {name:"ca heo",age:3});
+ *
+ * 2. Create a node Animal - Dog
+ * create (ret:Animal {type:"Dog", legs:4})
+ *
+ * 3. Create relationship between two node (a->b)
+ * // Create a friend relationship between duccao & khahuy
+ * match
+ * (a:Person),
+ * (b:Person)
+ * where a.name = 'duccao'
+ * and b.name = 'khahuy'
+ * create (a)-[r:FRIEND]->(b)
+ * return type(r);
+ *
+ * 4. Create properties in relationship
+ * match
+ * (a:Person),
+ * (b:Person)
+ * where a.name = 'duccao'
+ * and b.name = 'khahuy'
+ * create (a)-[r:FRIEND {highSchool:"Ly Tu Trong", interested:"League Of Legend"}] ->(b)
+ * return type(r)
+ *
+ *
+ * 5. Create relationship that full path
+ * create p =
+ * (andy {name:"Andy"})-[:WORKS_AT]->(neo)<-[:WORKS_AT]-(michael {name:"Michael"})
+ * return p;
+ *
+ *
+ */
+
 var driver = neo4jDriver.driver(
   'neo4j://localhost',
   neo4j.auth.basic('neo4j', 'password')
