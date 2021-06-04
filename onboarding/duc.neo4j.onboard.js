@@ -44,6 +44,20 @@ const neo4jDriver = require('neo4j-driver');
  * return tom,movies,coActors;
  *
  *
+ * 8. How people are related to Cloud Atlas film
+ * match (people:Person)
+ * -[relatedTo]
+ * -(:Movie {title:"Cloud Atlas"})
+ * return people.name, type(relatedTo), relatedTo
+ *
+ * 9. Delete all node
+ * match (n)
+ * detach
+ * delete n;
+ *
+ * 10. Verify that the movie graph data is gone
+ * match (n)
+ * return count(*);
  *
  *
  */
