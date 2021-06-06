@@ -97,7 +97,38 @@ const neo4jDriver = require('neo4j-driver');
  * return p;
  *
  *
+ * 6. Create a noe with parameter for the properties
+ * {
+      "props" : {
+      "name" : "Andy",
+      "position" : "Developer"
+      }
+    }
+
+
+    create (n:Person $props)
+    return n;
+ * 
  */
+
+/**
+*   DELETE Command 
+* 1. Delete a node
+    match (n:Person {name:"duc"})
+    delete n;
+
+  2. delete a node with all its relationship
+  match (n:{name:"duc"})
+  detach
+  delete n;
+
+  3. delete relationship only
+  match (n:{name:"duc"})-[r:KNOWS]->()
+  delete r;
+
+
+* 
+*/
 
 var driver = neo4jDriver.driver(
   'neo4j://localhost',
