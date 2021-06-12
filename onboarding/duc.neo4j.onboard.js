@@ -130,9 +130,44 @@ const neo4jDriver = require('neo4j-driver');
 * 
 */
 
+const neo4jDriver = require('neo4j-driver');
+
 var driver = neo4jDriver.driver(
-  'neo4j://localhost',
-  neo4j.auth.basic('neo4j', 'password')
+  'bolt://localhost:7687',
+  neo4jDriver.auth.basic('duc', 'duc')
 );
 
-driver.close();
+const neo4jConfig = {
+  getPersonName: async () => {
+    const session = driver.session();
+
+    const query = `match (p:Person) return p.name;`;
+    const para = {};
+    session.run(query, para, {}).subscribe({
+      onKeys: (keys) => {
+        // console.log(keys);
+      },
+      onNext: (record) => {
+        // console.log(record);
+      },
+      onCompleted: (ret) => {
+        console.log(ret);
+        const data = ret.database;
+
+        session.close(); // returns a Promise
+
+        return data;
+      },
+      onError: (error) => {
+        console.log(error);
+        return res.status(500).json({
+          message: er
+        });
+      }
+    });
+
+    driver.close();
+  }
+};
+
+module.exports = neo4jConfig;
