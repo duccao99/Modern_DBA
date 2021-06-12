@@ -19,7 +19,7 @@ const neo4jConfig = {
         // console.log(record);
       },
       onCompleted: (ret) => {
-        console.log(ret);
+        // console.log(ret);
         const data = ret.database;
 
         session.close(); // returns a Promise
@@ -28,13 +28,11 @@ const neo4jConfig = {
       },
       onError: (error) => {
         console.log(error);
-        return res.status(500).json({
-          message: er
-        });
+        // cb(error);
       }
     });
 
-    driver.close();
+    // driver.close();
   }
 };
 
