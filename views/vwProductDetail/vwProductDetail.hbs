@@ -2,20 +2,20 @@
 <div class="row my-5">
 <div class="col-5">
 <div class="card">
-    <img class="card-img-top" src="" alt="" height="400px" width="600px">
+    <img class="card-img-top" src="{{proDetail.avatarUrl}}" alt="" height="400px" width="600px">
  
 </div>
 </div>
 <div class="col-7">
     <div class="row">
         <div class="col-12 my-3">
-            <h1>proname</h1>
+            <h2>{{proDetail.proName}} </h2>
         </div>
         <div class="col-12 my-3">
-            <h5>12312$</h5>
+            <h5> {{proDetail.price.low}}  $</h5>
         </div>
     <div class="col-12 my-3">
-            <h5>category$</h5>
+            <h5>{{cat.catName}} </h5>
         </div>
 
 
@@ -37,14 +37,14 @@
     <div class="col-12">
         <h3>Description</h3>
     </div>
-    <div class="col-12">
+    <div class="col-6">
 
-        asdasd
+      {{proDetail.fullDes}}
     </div>
 </div>
 
 <div class="row my-5">
-  <div class="col-12">
+  <div class="col-12 my-3">
 
         <h3>Relative category product</h3>
   </div>
@@ -53,17 +53,17 @@
 
 
   {{#each relativePro }}
-        <div class="col-3 mr-4">
+        <div class="col-3 ">
 
-                <div class="card" style="width: 18rem;">
+                <div class="card " >
                     <a href="/api/product/{{this.proId}}">
                     <img class="card-img-top" src="{{this.avatarUrl}}" alt="Card image cap">
 
                     </a>
                     <div class="card-body">
                         <h5 class="card-title">{{this.proName}}</h5>
-                        <p class="card-text">Price: {{this.price}}</p>
-                        <p class="card-text">Category: {{this.category}}</p>
+                        <p class="card-text">Price: {{this.price.low}}</p>
+                        <p class="card-text">Category: {{cat.catName}}</p>
 
                         <input type="text" class="d-none pro_ids" name="pro_id"  value="{{this.proId}}" >
                         <button class="btn btn-primary btnAddToCart"  value="{{this.proId}}" >Add to cart</button>

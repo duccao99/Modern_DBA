@@ -46,13 +46,9 @@ router.post('/', async function (req, res) {
 
 // product detail neo4j
 router.get('/:id', async function (req, res) {
-  const id = +req.params.id;
+  const proId = req.params.id;
 
-  let a = [];
-
-  let carryData = [];
-
-  neo4jConfig.getProductDetail((er, data) => {
+  neo4jConfig.getFullProductDetail((er, data) => {
     // console.log('Data from neo4j');
     // console.log(data);
     // a.push(data[0].properties);
@@ -67,13 +63,49 @@ router.get('/:id', async function (req, res) {
      price
      proId
      */
-    let ret = [...data];
-    ret = ret.map((e) => e._fields[0].properties);
 
-    return res.json({
-      ret
-    });
-  });
+    if (data.length !== 0) {
+      let ret = [...data];
+      console.log(ret);
+      let relativeProducts = ret.map((e) => {
+        return e._fields[2].properties;
+      });
+
+      ret = ret.map((e) => {
+        // console.log(e);
+        return e._fields;
+        // return e._fields[0].properties;
+      });
+
+      res.render('vwProductDetail/vwProductDetail.hbs', {
+        layout: 'layout',
+        proDetail: ret[0][0].properties,
+        cat: ret[0][1].properties,
+        relativePro: relativeProducts
+      });
+    } else {
+      neo4jConfig.getProductDetail((er, data) => {
+        console.log(data);
+
+        let ret = [...data];
+        ret = ret.map((e) => {
+          return e._fields;
+        });
+        // console.log(ret[0]);
+
+        res.render('vwProductDetail/vwProductDetail.hbs', {
+          layout: 'layout',
+          proDetail: ret[0][0].properties,
+          cat: ret[0][1].properties,
+          relativePro: []
+        });
+      }, proId);
+    }
+
+    // return res.json({
+    //   ret
+    // });
+  }, proId);
 
   // res.render('vwProductDetail/vwProductDetail.hbs', {
   //   layout: 'layout',
@@ -159,7 +191,7 @@ RAM chuẩn: DDR4
 Dung lượng: 32GB (16GBx2)
 Thiết kế nhỏ gọn, hiện đại
 Bộ 2 Thanh RAM PC G.Skill 32GB (16GBx2) Ripjaws Tản Nhiệt DDR4 F4-3000C16D-32GVRB không chỉ được thiết kế với kiểu dáng mới, mà còn còn sở hữu gam màu đỏ rực rỡ, Ripjaws chắc chắn là một lựa chọn tuyệt vời. Đặc biệt, thiết bị được thiết kế với chiều cao mô-đun 42mm phù hợp với hầu hết các tản nhiệt CPU quá khổ.",
- avatarUrl:"https://salt.tikicdn.com/cache/w444/ts/product/3f/e7/53/cc32b8f9b91e62173fd15bb0a1101da6.jpg"    
+ avatarUrl:"https://salt.tikicdn.com/cache/w444/ts/product/06/52/27/00294e84ad558ed3dd67a7bd49230bd5.jpg"    
 });
 
 create (p:Product 
@@ -172,7 +204,7 @@ RAM chuẩn: DDR4
 Dung lượng: 32GB (16GBx2)
 Thiết kế nhỏ gọn, hiện đại
 Bộ 2 Thanh RAM PC G.Skill 32GB (16GBx2) Ripjaws Tản Nhiệt DDR4 F4-3000C16D-32GVRB không chỉ được thiết kế với kiểu dáng mới, mà còn còn sở hữu gam màu đỏ rực rỡ, Ripjaws chắc chắn là một lựa chọn tuyệt vời. Đặc biệt, thiết bị được thiết kế với chiều cao mô-đun 42mm phù hợp với hầu hết các tản nhiệt CPU quá khổ.",
- avatarUrl:"https://salt.tikicdn.com/cache/w444/ts/product/3f/e7/53/cc32b8f9b91e62173fd15bb0a1101da6.jpg"    
+ avatarUrl:"https://salt.tikicdn.com/cache/w444/ts/product/06/52/27/00294e84ad558ed3dd67a7bd49230bd5.jpg"    
 });
 
 // create category
