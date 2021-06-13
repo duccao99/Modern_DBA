@@ -48,21 +48,38 @@ router.post('/', async function (req, res) {
 router.get('/:id', async function (req, res) {
   const id = +req.params.id;
 
-  // neo4jConfig.getPersonName((er, data) => {
-  //   console.log(data);
-  //   const products = data;
+  let a = [];
 
-  //   res.render('vwProductDetail/vwProductDetail.hbs', {
-  //     layout: 'layout',
-  //     products
-  //   });
-  // });
+  let carryData = [];
 
-  res.render('vwProductDetail/vwProductDetail.hbs', {
-    layout: 'layout',
-    // products,
-    relativePro: [1, 2, 3]
+  neo4jConfig.getProductDetail((er, data) => {
+    // console.log('Data from neo4j');
+    // console.log(data);
+    // a.push(data[0].properties);
+    // return data[0].properties;
+
+    /**
+     * HANDLE JSON DATA FROM NEO4J
+     *
+     *proName
+     *avatarUrl
+     *fullDes
+     price
+     proId
+     */
+    let ret = [...data];
+    ret = ret.map((e) => e._fields[0].properties);
+
+    return res.json({
+      ret
+    });
   });
+
+  // res.render('vwProductDetail/vwProductDetail.hbs', {
+  //   layout: 'layout',
+  //   products,
+  //   relativePro: [1, 2, 3]
+  // });
 });
 
 /**
@@ -77,14 +94,39 @@ create (p:Product
 {proId:"60b4e68c9fee800540447315",
  proName:"100 cây Keo Nến ( Keo Nhiệt ) dài 24cm dùng cho súng bắn keo 20w",
  price:95000,
- avatarUrl:"https://salt.tikicdn.com/cache/w444/ts/product/45/79/a5/c76398ae87578ca5d9ad9ab609bae49a.jpg"    
+ fullDes:"Dài 24cm
+Đường kính 0.7cm
+Dùng cho loại sung nhỏ 20w
+Dài 24cm
+Đường kính 0.7cm
+Dùng cho loại sung nhỏ 20w
+
+Giá sản phẩm trên Tiki đã bao gồm thuế theo luật hiện hành. Tuy nhiên tuỳ vào từng loại sản phẩm hoặc phương thức, địa chỉ giao hàng mà có thể phát sinh thêm chi phí khác như phí vận chuyển, phụ phí hàng cồng kềnh, ...",
+
+ avatarUrl:"https://salt.tikicdn.com/cache/w444/ts/product/45/79/a5/c76398ae87578ca5d9ad9ab609bae49a.jpg"
 });
+
+
 
 
 create (p:Product 
 {proId:"60b4e7169fee800540447316",
  proName:"Dụng cụ vặn ván trượt Patin chữ T kèm khóa Allen",
  price:33000,
+  fullDes:"Hoàn hảo cho hầu như bất kỳ ván trượt.
+3 ổ cắm (ở 3 đầu của công cụ hình chữ T-14mm-13mm-8mm) với các kích cỡ khác nhau để thắt chặt và lắp xe tải, bánh xe, vòng bi.
+Một tuốc nơ vít phù hợp với tay cầm công cụ.
+Thiết kế hình chữ T thân thiện với người dùng để sử dụng thoải mái.
+Nhẹ và nhỏ để mang theo.
+-Hoàn hảo cho hầu như bất kỳ ván trượt.
+- 3 ổ cắm (ở 3 đầu của công cụ hình chữ T-14mm-13mm-8mm) với các kích cỡ khác nhau để thắt chặt và lắp xe tải, bánh xe, vòng bi.
+-Một tuốc nơ vít phù hợp với tay cầm công cụ.
+-Thiết kế hình chữ T thân thiện với người dùng để sử dụng thoải mái.
+-Nhẹ và nhỏ để mang theo.
+-Thông số kỹ thuật: Chiều dài: Xấp xỉ. 10.3 cm x 9 cm (L * W)
+-Phù hợp cho: đai ốc trục, Đinh chính hình lục giác bên ngoài, đai ốc tiêu chuẩn, sửa vít lục giác bên trong, sửa vít chéo.
+ 
+Giá sản phẩm trên Tiki đã bao gồm thuế theo luật hiện hành. Tuy nhiên tuỳ vào từng loại sản phẩm hoặc phương thức, địa chỉ giao hàng mà có thể phát sinh thêm chi phí khác như phí vận chuyển, phụ phí hàng cồng kềnh, ...",
  avatarUrl:"https://salt.tikicdn.com/cache/w444/ts/product/3f/e7/53/cc32b8f9b91e62173fd15bb0a1101da6.jpg"    
 });
 
@@ -93,8 +135,17 @@ create (p:Product
 {proId:"60b4e7799fee800540447317",
  proName:"Bộ 2 Thanh RAM PC G.Skill 32GB (16GBx2) LED RGB Tản Nhiệt DDR4 F4-3000C16D-32GTZR - Hàng Chính Hãng",
  price:5346800,
+ fullDes:"Tốc độ 3000MHz
+Độ trễ CL16-18-18-38
+RAM chuẩn: DDR4
+Dung lượng: 32GB (16GBx2)
+Thiết kế nhỏ gọn, hiện đại
+Bộ 2 Thanh RAM PC G.Skill 32GB (16GBx2) Ripjaws Tản Nhiệt DDR4 F4-3000C16D-32GVRB không chỉ được thiết kế với kiểu dáng mới, mà còn còn sở hữu gam màu đỏ rực rỡ, Ripjaws chắc chắn là một lựa chọn tuyệt vời. Đặc biệt, thiết bị được thiết kế với chiều cao mô-đun 42mm phù hợp với hầu hết các tản nhiệt CPU quá khổ.",
  avatarUrl:"https://salt.tikicdn.com/cache/w444/ts/product/3f/e7/53/cc32b8f9b91e62173fd15bb0a1101da6.jpg"    
 });
+
+
+
 
 
 
@@ -102,19 +153,27 @@ create (p:Product
 {proId:"60b4e7849fee800540447318",
  proName:"Bộ 2 Thanh RAM PC G.Skill 32GB (16GBx2) LED RGB Tản Nhiệt DDR4 F4-3000C16D-32GTZR - Hàng Chính Hãng",
  price:5346800,
+ fullDes:"Tốc độ 3000MHz
+Độ trễ CL16-18-18-38
+RAM chuẩn: DDR4
+Dung lượng: 32GB (16GBx2)
+Thiết kế nhỏ gọn, hiện đại
+Bộ 2 Thanh RAM PC G.Skill 32GB (16GBx2) Ripjaws Tản Nhiệt DDR4 F4-3000C16D-32GVRB không chỉ được thiết kế với kiểu dáng mới, mà còn còn sở hữu gam màu đỏ rực rỡ, Ripjaws chắc chắn là một lựa chọn tuyệt vời. Đặc biệt, thiết bị được thiết kế với chiều cao mô-đun 42mm phù hợp với hầu hết các tản nhiệt CPU quá khổ.",
  avatarUrl:"https://salt.tikicdn.com/cache/w444/ts/product/3f/e7/53/cc32b8f9b91e62173fd15bb0a1101da6.jpg"    
 });
-
-
 
 create (p:Product 
 {proId:"60b4e78e9fee800540447319",
  proName:"Bộ 2 Thanh RAM",
  price:3000000,
+ fullDes:"Tốc độ 3000MHz
+Độ trễ CL16-18-18-38
+RAM chuẩn: DDR4
+Dung lượng: 32GB (16GBx2)
+Thiết kế nhỏ gọn, hiện đại
+Bộ 2 Thanh RAM PC G.Skill 32GB (16GBx2) Ripjaws Tản Nhiệt DDR4 F4-3000C16D-32GVRB không chỉ được thiết kế với kiểu dáng mới, mà còn còn sở hữu gam màu đỏ rực rỡ, Ripjaws chắc chắn là một lựa chọn tuyệt vời. Đặc biệt, thiết bị được thiết kế với chiều cao mô-đun 42mm phù hợp với hầu hết các tản nhiệt CPU quá khổ.",
  avatarUrl:"https://salt.tikicdn.com/cache/w444/ts/product/3f/e7/53/cc32b8f9b91e62173fd15bb0a1101da6.jpg"    
 });
-
-
 
 // create category
 
