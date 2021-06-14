@@ -1,0 +1,38 @@
+<div class="row">
+    
+    <div class="col-12">
+        <h3>Kết quả tìm kiếm</h3>
+    </div>
+</div>
+
+
+
+<div class="row">
+
+    {{#if isEmpty}}
+        <div class="col-12 my-3"><h3>Không tìm thấy sản phẩm</h3></div>
+    {{/if}}
+
+
+
+  {{#each products }}
+            <div class="col-4">
+
+                <div class="card" style="width: 18rem;">
+<a href="/api/product/{{this.proid}}">
+  <img class="card-img-top" src="{{this.avatarurl}}" alt="Card image cap">
+
+</a>
+  <div class="card-body">
+    <h5 class="card-title">{{this.proname}}</h5>
+    <p class="card-text">Price: {{this.price}}</p>
+    <p class="card-text">Category: {{this.category}}</p>
+
+    <input type="text" class="d-none pro_ids" name="pro_id"  value="{{this.proid}}" >
+    <button class="btn btn-primary btnAddToCart"  value="{{this.proid}}" >Add to cart</button>
+  </div>
+</div>
+            </div>
+        {{/each}}
+
+</div>

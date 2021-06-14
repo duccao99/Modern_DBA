@@ -116,8 +116,6 @@ router.get('/search', async function (req, res) {
   }
 
   const keyword = req.query.keyword;
-  console.log(req.query);
-  console.log('keyword: ' + keyword);
 
   // insert records
   // cassandraConfig.bulkInsert((er, data) => {
@@ -137,10 +135,14 @@ router.get('/search', async function (req, res) {
       }
     }
 
-    console.log(ret);
+    let isEmpty = false;
 
-    return res.json({
-      ret: ret
+    products.length === 0 ? isEmpty === true : (isEmpty = false);
+
+    return res.render('vwHome/vwSearchProduct', {
+      layout: 'layout',
+      products: ret,
+      isEmpty: ret.length === 0 ? true : false
     });
   });
 });

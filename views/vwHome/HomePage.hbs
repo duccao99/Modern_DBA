@@ -1,5 +1,21 @@
 <div class="card">
  
+
+ <div class="row my-2 p-4">
+
+     <div class="col-12">
+
+<form class="form-group" action="/api/product/search">
+  <label for=""></label>
+  <input type="text"
+    class="form-control" name="keyword" id="proname" aria-describedby="helpId" placeholder="">
+  <small id="helpId" class="form-text text-muted">Tìm kiếm sản phẩm</small>
+</form>
+
+     </div>
+ </div>
+
+
     <div class="card-body">
         <h4 class="card-title">Title</h4>
 
@@ -60,5 +76,14 @@
     }
 
 
+</script>
+
+<script>
+const proname=$("#proname");
+proname[0].onkeypress=e=>{
+    if(+.which===13){
+      
+    }
+}
 </script>
 {{/section}}
