@@ -2,12 +2,17 @@ const express = require("express");
 const cors = require("cors");
 const path = require('path');
 const responseTime = require("response-time");
-const app = express();
 
-app.use(express.urlencoded());
+const app = express();
+// const bodyParser = require('body-parser')
+
+app.use(express.urlencoded({ extended: false }));
+// app.use(express.urlencoded());
 app.use(express.json());
 app.use(cors());
 app.use(responseTime());
+
+app.use('/assets', express.static('assets'));
 
 app.get("/", function (req, res) {
   res.json({ message: "hi" });

@@ -34,6 +34,7 @@ let isShop = async(req,res,next)=>{
             const decoded = await jwtHelper.verifyToken(tokenFromClient,key.public);
             req.decoded = decoded;
             if(decoded['role'] == 'shop'){
+                req.body.userId = req.decoded['id'];
                 next();
             } else throw error;
         } catch(error){
