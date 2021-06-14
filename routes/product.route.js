@@ -51,6 +51,63 @@ router.post('/', async function (req, res) {
 //------------------------------
 // Search product - cassandra
 //------------------------------
+
+/**
+ * Search product design
+ * 
+
+
+ -1.  Active codepage console
+ CHCP 65001
+
+  0.  Start CLI with username & password
+  cqlsh -u cass -p cass;
+ *
+ * 1. Create key space
+    create keyspace tiki with replication ={'class':'SimpleStrategy','replication_factor':1};
+ 
+ * 2. Create table product
+    use tiki;
+
+    create table product(
+      proId text primary key,
+      proName text,
+      avatarUrl text,
+      price int,
+      category text
+    );
+
+  3. Insert data
+
+  insert into product (proId,proName,avatarUrl,price,category) 
+  values ('60b4e68c9fee800540447315','100 cây Keo Nến Keo Nhiệt  dài 24cm dùng cho súng bắn keo 20w'
+  ,'https://salt.tikicdn.com/cache/w444/ts/product/45/79/a5/c76398ae87578ca5d9ad9ab609bae49a.jpg'
+  ,95000,'Nhà cửa, đời sống');
+
+  insert into product (proId,proName,avatarUrl,price,category) 
+  values ('60b4e7169fee800540447316','Dụng cụ vặn ván trượt Patin chữ T kèm khóa Allen'
+  ,'https://salt.tikicdn.com/cache/w444/ts/product/3f/e7/53/cc32b8f9b91e62173fd15bb0a1101da6.jpg',
+  33000,'Thể thao, dã ngoại');
+
+  insert into product (proId,proName,avatarUrl,price,category) 
+  values ('60b4e7799fee800540447317','Bộ 2 Thanh RAM PC G.Skill 32GB (16GBx2) LED RGB Tản Nhiệt DDR4 F4-3000C16D-32GTZR - Hàng Chính Hãng'
+  ,'https://salt.tikicdn.com/cache/w444/ts/product/3f/e7/53/cc32b8f9b91e62173fd15bb0a1101da6.jpg',
+  5346800,'Laptop, vi tính, linh kiện');
+
+  insert into product (proId,proName,avatarUrl,price,category) 
+  values ('60b4e7849fee800540447318','Bộ 2 Thanh RAM PC G.Skill 32GB (16GBx2) LED RGB Tản Nhiệt DDR4 F4-3000C16D-32GTZR - Hàng Chính Hãng'
+  ,'https://salt.tikicdn.com/cache/w444/ts/product/06/52/27/00294e84ad558ed3dd67a7bd49230bd5.jpg',
+  5346800,'Laptop, vi tính, linh kiện');
+
+  insert into product (proId,proName,avatarUrl,price,category) 
+  values ('60b4e78e9fee800540447319','Bộ 2 Thanh RAM'
+  ,'https://salt.tikicdn.com/cache/w444/ts/product/06/52/27/00294e84ad558ed3dd67a7bd49230bd5.jpg',
+  3000000,'Laptop, vi tính, linh kiện');
+
+
+
+ */
+
 router.get('/search', async function (req, res) {
   if (!req.query.keyword) {
     return res.status(400).json({
@@ -58,13 +115,32 @@ router.get('/search', async function (req, res) {
     });
   }
 
-  const keyword = req.query;
+  const keyword = req.query.keyword;
+  console.log(req.query);
+  console.log('keyword: ' + keyword);
+
+  // insert records
+  // cassandraConfig.bulkInsert((er, data) => {
+  //   // console.log(data);
+  // });
 
   cassandraConfig.getProduct((er, data) => {
-    console.log(data);
+    // console.log(data);
+    let products = [...data];
+
+    let ret = [];
+
+    for (let i = 0; i < products.length; ++i) {
+      console.log(products[i]);
+      if (products[i].proname.includes(keyword)) {
+        ret.push(products[i]);
+      }
+    }
+
+    console.log(ret);
 
     return res.json({
-      ret: data
+      ret: ret
     });
   });
 });
