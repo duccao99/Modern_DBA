@@ -1,0 +1,37 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='UTF-8')
+    meta(http-equiv='X-UA-Compatible' content='IE=edge')
+    meta(name='viewport' content='width=device-width, initial-scale=1.0')
+    script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js')
+    script(src='https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js')
+    title=name 
+  body
+    a(href="/2287") Home 
+      .category
+        ul.categoty_list
+          each bread in result.breadcrumbs
+            if bread._id
+              li 
+                a(href='/common/#{bread._id}')= bread.name 
+                br
+            else 
+              li
+                a(href='#')= bread.name 
+                br
+      .product
+        h1=result.name
+        div=result.price
+        ul
+          each value, key in result.option_attributes
+            p !{key}-!{value} 
+      .shop 
+        h1 #{result.shop.shopName} Shop 
+      .recommender 
+        ul.recommender_list 
+           each bread in pwith
+            li 
+              a(href='/detail/#{bread._id}')= bread.name 
+              br 
+      //- script(src='./assets/js/detail.js')

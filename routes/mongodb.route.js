@@ -1,13 +1,58 @@
 var express = require('express');
 var router = express.Router();
 const Dbquery = require("../mongodb_query/dataquery");
+const Neo4jquery = require("../mongodb_query/neo4jquery");
 const AuthMiddleWare = require("../middleware/auth")
 
-
+router.post("/category/neo4j",async(req,res)=>{
+    try {
+        const result = await Neo4jquery.postCategory(req.body.name,req.body.id,req.body.parentId);
+        return res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json(error);
+    }
+})
+router.post("/product/neo4j",async(req,res)=>{
+    try {
+        const result = await Neo4jquery.postProduct(req.body.productId,req.body.categoryId,req.body.shopId);
+        return res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json(error);
+    }
+})
+router.post("/shop/neo4j",async(req,res)=>{
+    try {
+        const result = await Neo4jquery.postShop(req.body.shopId,req.body.shopName);
+        return res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json(error);
+    }
+})
+router.post("/with/neo4j",async(req,res)=>{
+    try {
+        const result = await Neo4jquery.postWith(req.body.itemaId,req.body.itembId);
+        return res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json(error);
+    }
+})
+router.get("/with/neo4j",async(req,res)=>{
+    try {
+        const result = await Neo4jquery.getWith(req.body.itemaId,req.body.skip,req.body.limit);
+        return res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json(error);
+    }
+})
 // category 
 router.get("/category",async(req,res)=>{
     try {
-        const result = await Dbquery.getCategoryLevel1();
+        const result = await Dbquery.getCategory_v2(req.body.level || req.query.level,req.body.parent||req.query.parent);
         return res.status(200).json(result);
     } catch (error) {
         console.log(error);
@@ -41,7 +86,6 @@ router.post("/category",async(req,res)=>{
         return res.status(500).json(error);
     }
 })
-//to do
 router.get("/category/noibat",async(req,res)=>{
     try{
         const result = await Dbquery.getByCategory(req.params.categoryId,1 * req.body.skip,1 * req.body.limit);
@@ -54,7 +98,7 @@ router.get("/category/noibat",async(req,res)=>{
 // product
 router.get("/product/category/:categoryId",async(req,res)=>{
     try{
-        const result = await Dbquery.getByCategory(req.params.categoryId,1 * req.body.skip,1 * req.body.limit);
+        const result = await Dbquery.getByCategory(req.params.categoryId,req.body.skip,req.body.limit);
         return res.status(200).json(result);
     } catch(error){
         console.log(error);
@@ -63,7 +107,7 @@ router.get("/product/category/:categoryId",async(req,res)=>{
 })
 router.get("/product/noibat",async(req,res)=>{
     try{
-        const result = await Dbquery.getNoiBat(1 * req.body.skip,1 * req.body.limit);
+        const result = await Dbquery.getNoiBat(req.body.skip,req.body.limit);
         return res.status(200).json(result);
     } catch(error){
         console.log(error);
@@ -105,16 +149,17 @@ router.post("/review",AuthMiddleWare.isAuth,async(req,res)=>{
 router.get("/review/:objectId",async(req,res)=>{
     res.status(200).json("ok");
 })
-// router.post("/initshop",AuthMiddleWare.isAuth,async(req,res)=>{
-//     try{
-//         req.body.userId = req.decoded['id'];
-//         const result = await Dbquery.postShop(req.body);
-//         return res.status(200).json(result);
-//     } catch(error){
-//         console.log(error);
-//         return res.status(500).json(error);
-//     }
-// })
+//create shop
+router.post("/shop",AuthMiddleWare.isShop,async(req,res)=>{
+    try{
+        req.body.userId = req.decoded['id'];
+        const result = await Dbquery.postShop(req.body.userId,req.body.shopName);
+        return res.status(200).json(result);
+    } catch(error){
+        console.log(error);
+        return res.status(500).json(error);
+    }
+})
 
 
 module.exports = router;

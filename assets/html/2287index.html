@@ -19,17 +19,29 @@
 <script id="product-list" type="text/x-handlebars-template">
     <ul class="product_list">
     {{#each product}}
-        <li><a href="#">{{this.name}}</a></li>
+        <li><a href="/detail/{{this._id}}">{{this.name}}</a></li>
     {{/each}}
     </ul>
 </script>
 <script id="category-list" type="text/x-handlebars-template">
     <ul class="categoty_list">
     {{#each category}}
-        <li><a href="#">{{this.name}}</a></li>
+        <li>
+            <a id='{{this._id}}' class ="each_category" href="/common/{{this._id}}">{{this.name}}</a>
+            <span id='{{this._id}}' class="btncategoty">more</span> 
+            <div id="subcate{{this._id}}"></div>
+        </li>
     {{/each}}
     </ul>
 </script>
+<script id="subcate-list" type="text/x-handlebars-template">
+    <ul class="subcate">
+    {{#each morecate}}
+        <li><a id='{{this._id}}' class ="each_category" href="/common/{{this._id}}">{{this.name}}</a></li>
+    {{/each}}
+    </ul>
+</script>
+
 
 <script src="./assets/js/2287.js"></script>
 </html>

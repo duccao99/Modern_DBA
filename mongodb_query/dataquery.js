@@ -14,22 +14,27 @@ let getDetail = async(productId)=>{
         throw err;
     }
 } 
-let getByCategory = async(categoryId,skip = 0, limit = 30)=>{
+let getByCategory = async(categoryId,skip = 0, limit = 5)=>{
     try{
         const client = new MongoClient(uri, { useUnifiedTopology: true } );
         await client.connect({native_parser:true});
-        const result = await client.db("qtcsdlhd").collection("product").find({"breadcrumbs._id" : { $in : [ObjectID(categoryId)]}}).skip(skip).limit(limit).toArray()
+        const result = await client.db("qtcsdlhd").collection("product").find({"breadcrumbs._id" : { $in : [ObjectID(categoryId)]}}).skip(1 * skip).limit(1 * limit).toArray()
         await client.close();
         return result;
     } catch(err){
         throw err;
     }
 }
-let getCategoryLevel1 = async() =>{
+let getCategory_v2 = async(level=1,parentId=null) =>{
     try{
         const client = new MongoClient(uri, { useUnifiedTopology: true } );
         await client.connect({native_parser:true});
-        const result = await client.db("qtcsdlhd").collection("category").find({'level':1}).toArray()
+        if(parentId){
+            var result = await client.db("qtcsdlhd").collection("category").find({'level':1 * level,"ancestors._id" : { $in : [ObjectID(parentId)]}}).toArray()
+        }
+        else{
+            var result = await client.db("qtcsdlhd").collection("category").find({'level':1 * level}).toArray()
+        }
         await client.close();
         return result;
     } catch(err){
@@ -47,11 +52,11 @@ let getCategory = async(categoryId) => {
         throw err;
     }
 }
-let getNoiBat = async(skip = 0,limit = 30)=>{
+let getNoiBat = async(skip = 0,limit = 5)=>{
     try{
         const client = new MongoClient(uri, { useUnifiedTopology: true } );
         await client.connect({native_parser:true});
-        const result = await client.db("qtcsdlhd").collection("product").find({}).skip(skip).limit(limit).toArray()
+        const result = await client.db("qtcsdlhd").collection("product").find({}).skip(1 * skip).limit(1 * limit).toArray()
         await client.close();
         return result;
     } catch(err){
@@ -100,7 +105,7 @@ let postProduct = async(userId,shopId,categoryId,name,option_attributes,price) =
     try{
         const client = new MongoClient(uri, { useUnifiedTopology: true } );
         await client.connect({native_parser:true});
-        const auth = await client.db("qtcsdlhd").collection("Shop").findOne({
+        const auth = await client.db("qtcsdlhd").collection("shop").findOne({
             '_id':ObjectID(shopId),'userId':ObjectID(userId)},
             { projection: { shopName: 1 } })
         if(!auth){
@@ -119,6 +124,10 @@ let postProduct = async(userId,shopId,categoryId,name,option_attributes,price) =
         // option_attributes.forEach(element => {
         //     op_atr.push(JSON.parse(element));
         // });
+        var listattr = {}
+        for (i = 0; i < option_attributes.length; i+=2) {
+            listattr[option_attributes[i].toString()] = option_attributes[i+1];
+          }
         var document = {
             "name": name,
             "description": "description",//data.description,
@@ -128,18 +137,20 @@ let postProduct = async(userId,shopId,categoryId,name,option_attributes,price) =
                 "https://images-na.ssl-images-amazon.com/images/I/6110JInm%2BBL.jpg",
                 "https://images-na.ssl-images-amazon.com/images/I/41FuQMh3FUL.jpg"
             ],
-            "option_attributes": option_attributes,//JSON.parse(option_attributes),
+            "option_attributes": listattr,//JSON.parse(option_attributes),
             "breadcrumbs": breadcrumbs,
             "shop": auth, 
         }
+        // console.log(option_attributes);
         const result = await client.db("qtcsdlhd").collection("product").insertOne(document)
-        const res = await client.db("qtcsdlhd").collection("Shop").updateOne({
+        const res = await client.db("qtcsdlhd").collection("shop").updateOne({
             '_id':ObjectID(shopId),'userId':ObjectID(userId)
         },
         {
             '$push': {"products":{'_id':result.ops[0]._id,'name':result.ops[0].name,"breadcrumbs": result.ops[0].breadcrumbs}}
         })
         await client.close();
+        console.log(document);
         return result;
     } catch(err){
         throw err;
@@ -187,6 +198,19 @@ let findcategorybyname = async(name)=>{
         throw err;
     }
 }
+let postShop = async(userId,shopName)=>{
+    try{
+        const client = new MongoClient(uri, { useUnifiedTopology: true } );
+        await client.connect({native_parser:true});
+        const result = await client.db("qtcsdlhd").collection("shop").insertOne({
+            'userId': ObjectID(userId),'shopName':shopName
+        })
+        await client.close();
+        return result;
+    } catch(err){
+        throw err;
+    }
+}
 module.exports = {
     getDetail:getDetail,
     getByCategory:getByCategory,
@@ -194,7 +218,8 @@ module.exports = {
     postCategory:postCategory,
     postProduct:postProduct,
     postReview:postReview,
-    getCategoryLevel1:getCategoryLevel1,
+    getCategory_v2:getCategory_v2,
     getNoiBat:getNoiBat,
-    findcategorybyname:findcategorybyname
+    findcategorybyname:findcategorybyname,
+    postShop:postShop
 }

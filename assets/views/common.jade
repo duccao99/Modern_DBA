@@ -1,0 +1,26 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='UTF-8')
+    meta(http-equiv='X-UA-Compatible' content='IE=edge')
+    meta(name='viewport' content='width=device-width, initial-scale=1.0')
+    script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js')
+    script(src='https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js')
+    title=category.name 
+  body
+    a(href="/2287") Home 
+    .category
+      ul.categoty_list
+        each bread in category.ancestors
+          li 
+            a(href='/common/#{bread._id}')= bread.name 
+            br
+        li 
+          a(href="#")=category.name 
+    .product
+      ul.product_list
+        each bread in product
+          li 
+            a(href='/detail/#{bread._id}')= bread.name 
+            br 
+    //- script(src='./assets/js/detail.js')
