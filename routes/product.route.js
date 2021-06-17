@@ -3,6 +3,9 @@ const productModel = require('../models/product.model');
 const neo4jDriver = require('neo4j-driver');
 const neo4jConfig = require('../config/neo4j.config');
 const cassandraConfig = require('../config/cassandra.config');
+const chalk = require('chalk');
+const executionTime = require('execution-time')();
+
 //-------------------------------------------------------
 // Mongodb xem ds san pham - them 1 san pham
 //-------------------------------------------------------
@@ -109,6 +112,7 @@ router.post('/', async function (req, res) {
  */
 
 router.get('/search', async function (req, res) {
+  executionTime.start();
   if (!req.query.keyword) {
     return res.status(400).json({
       messsage: 'Keyword invalid!'
@@ -139,6 +143,9 @@ router.get('/search', async function (req, res) {
 
     products.length === 0 ? isEmpty === true : (isEmpty = false);
 
+    const retTime = executionTime.stop();
+    console.log(`Cassandra - Search product execution time: `, retTime.time);
+
     return res.render('vwHome/vwSearchProduct', {
       layout: 'layout',
       products: ret,
@@ -152,6 +159,7 @@ router.get('/search', async function (req, res) {
 //-------------------------
 
 router.get('/:id', async function (req, res) {
+  executionTime.start();
   const proId = req.params.id;
 
   neo4jConfig.getFullProductDetail((er, data) => {
@@ -183,6 +191,13 @@ router.get('/:id', async function (req, res) {
         // return e._fields[0].properties;
       });
 
+      const retTime = executionTime.stop();
+      console.log(
+        chalk.yellowBright(
+          `Neo4j - Product Detail execution time is: ` + retTime.time
+        )
+      );
+
       res.render('vwProductDetail/vwProductDetail.hbs', {
         layout: 'layout',
         proDetail: ret[0][0].properties,
@@ -198,6 +213,13 @@ router.get('/:id', async function (req, res) {
           return e._fields;
         });
         // console.log(ret[0]);
+
+        const retTime = executionTime.stop();
+        console.log(
+          chalk.yellowBright(
+            `Neo4j - Product Detail execution time is: ` + retTime.time
+          )
+        );
 
         res.render('vwProductDetail/vwProductDetail.hbs', {
           layout: 'layout',

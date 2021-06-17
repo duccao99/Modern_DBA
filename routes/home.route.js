@@ -2,6 +2,8 @@ const router = require('express').Router();
 const proModel = require('../models/product.model');
 const expressHandlebars = require('express-handlebars');
 const handlebars = require('handlebars');
+const chalk = require('chalk');
+const executionTime = require('execution-time')();
 
 // const products = [
 //   {
@@ -17,6 +19,7 @@ const handlebars = require('handlebars');
 // ];
 
 router.get('/', async function (req, res) {
+  executionTime.start();
   const products = await proModel.find({});
 
   let product_ret = [];
@@ -51,6 +54,14 @@ router.get('/', async function (req, res) {
       avatarUrl: retAvatarUrl
     });
   }
+
+  const retTime = executionTime.stop();
+
+  console.log(
+    chalk.yellowBright(
+      `Load all product - MongoDB execution time is: ` + retTime.time
+    )
+  );
 
   res.render('vwHome/HomePage', {
     layout: 'layout',

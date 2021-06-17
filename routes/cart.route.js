@@ -3,8 +3,12 @@ const redis = require('redis');
 const db = redis.createClient();
 const proModel = require('../models/product.model');
 const handlebars = require('handlebars');
+const executionTime = require('execution-time')();
+const chalk = require('chalk');
 
 /*
+Redis them san pham vao gio hang, xem gio hang
+
  * Command
     1. sadd key value - add data
     2. smembers key - get all data
@@ -12,6 +16,7 @@ const handlebars = require('handlebars');
     4. Cannot create database in redis - show db - config get databases
 */
 router.get('/', async function (req, res) {
+  executionTime.start();
   db.smembers('cart_id:3:pro_id', async (er, ret) => {
     if (er) {
       return res.status(500).json({
@@ -56,6 +61,12 @@ router.get('/', async function (req, res) {
       }
       console.log(cart_data);
 
+      const retTime = executionTime.stop();
+
+      console.log(
+        chalk.yellowBright('Get product in cart Redis execution time is: '),
+        retTime.time
+      );
       return res.render('vwCart/vwCart', {
         layout: 'layout',
         cart: cart_data
@@ -71,6 +82,7 @@ router.get('/add-to-cart', async function (req, res) {
 });
 
 router.post('/', async function (req, res) {
+  executionTime.start();
   if (!req.body.user_id || !req.body.pro_id) {
     return res.status(400).json({
       message: 'Invalid data post!'
@@ -95,6 +107,14 @@ router.post('/', async function (req, res) {
             message: er
           });
         } else {
+          const retTime = executionTime.stop();
+
+          console.log(
+            chalk.yellowBright(
+              'Add product into cart - Redis execution time is: '
+            ),
+            retTime.time
+          );
           return res.json({
             ret_add_proId: ret_proId,
             ret_add_userId: ret_userId
