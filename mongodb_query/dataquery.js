@@ -14,7 +14,7 @@ let getDetail = async(productId)=>{
         throw err;
     }
 } 
-let getByCategory = async(categoryId,skip = 0, limit = 5)=>{
+let getByCategory = async(categoryId,skip = 0, limit = 10)=>{
     try{
         const client = new MongoClient(uri, { useUnifiedTopology: true } );
         await client.connect({native_parser:true});

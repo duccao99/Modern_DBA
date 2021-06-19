@@ -2,12 +2,15 @@ const express = require("express");
 const cors = require("cors");
 const path = require('path');
 var bodyParser = require('body-parser');
-const responseTime = require("response-time");
 
 const multer  = require('multer')
 const upload = multer();
 
 const app = express();
+
+const responseTime = require("response-time");
+app.use(responseTime());
+
 // const bodyParser = require('body-parser')
 
 app.use(express.urlencoded({ extended: false }));
@@ -15,10 +18,10 @@ app.use(express.json());
 app.use(cors());
 app.use(responseTime());
 
-app.use('/check',upload.any(),(req,res)=>{
-  console.log(req);
-  res.status(200).json("g1");
-})
+// app.use('/check',upload.any(),(req,res)=>{
+//   console.log(req);
+//   res.status(200).json("g1");
+// })
 app.use('/assets', express.static('assets'));
 app.use(express.static(path.join(__dirname, 'assets')));
 app.set('views', path.join(__dirname, 'assets/views'));
@@ -34,7 +37,7 @@ app.use("/2287",(req,res)=>{
   res.sendFile(path.join(__dirname, './assets/html/2287index.html'));
 })
 app.use("/api/2287",require("./routes/mongodb.route"));
-
+app.use("/api/redis",require("./routes/2287redis"));
 const PORT = 1212 || process.env.PORT;
 app.listen(PORT, function () {
   console.log(`The URL: http://localhost:${PORT}`);
