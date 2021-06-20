@@ -34,4 +34,11 @@ html(lang='en')
             li 
               a(href='/detail/#{bread._id}')= bread.name 
               br 
+      .history 
+        h1 History
+        ul.history_list 
+           each bread in result_h
+            li 
+              a(href='/detail/#{bread._id}')= bread.name 
+              br 
       //- script(src='./assets/js/detail.js')
