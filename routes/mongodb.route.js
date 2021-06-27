@@ -6,13 +6,39 @@ const AuthMiddleWare = require("../middleware/auth")
 
 
 const redis = require("redis");
-const client = redis.createClient({
-    host: 'redis-19009.c253.us-central1-1.gce.cloud.redislabs.com',
-    port: 19009,
-    password: '0EUqKArE2aWKf6sO0UihOtIJaNAx96Qi'
-});
-
-
+const client = redis.createClient()
+// const client = redis.createClient({
+//     host: 'redis-19009.c253.us-central1-1.gce.cloud.redislabs.com',
+//     port: 19009,
+//     password: '0EUqKArE2aWKf6sO0UihOtIJaNAx96Qi'
+// });
+router.get("/search/:text/:untext",async(req,res)=>{
+    try {
+        const result = await Dbquery.getSearch(req.params.text,req.params.untext);
+        return res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json(error);
+    }
+})
+router.get("/getshop1/:shopId",async(req,res)=>{
+    try {
+        const result = await Dbquery.getshop1(req.params.shopId);
+        return res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json(error);
+    }
+})
+router.get("/getshop/:shopId",async(req,res)=>{
+    try {
+        const result = await Dbquery.getshop(req.params.shopId);
+        return res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json(error);
+    }
+})
 router.post("/category/neo4j",async(req,res)=>{
     try {
         const result = await Neo4jquery.postCategory(req.body.name,req.body.id,req.body.parentId);

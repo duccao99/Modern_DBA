@@ -14,7 +14,7 @@ let getDetail = async(productId)=>{
         throw err;
     }
 } 
-let getByCategory = async(categoryId,skip = 0, limit = 10)=>{
+let getByCategory = async(categoryId,skip = 0, limit = 10000)=>{
     try{
         const client = new MongoClient(uri, { useUnifiedTopology: true } );
         await client.connect({native_parser:true});
@@ -211,6 +211,42 @@ let postShop = async(userId,shopName)=>{
         throw err;
     }
 }
+let getshop = async(shopId)=>{
+    try{
+        const client = new MongoClient(uri, { useUnifiedTopology: true } );
+        await client.connect({native_parser:true});
+        const result = await client.db("qtcsdlhd").collection("shop").find({"_id":ObjectID(shopId)}).toArray()
+        await client.close();
+        return result;
+    } catch(err){
+        throw err;
+    }
+}
+let getshop1 = async(shopId)=>{
+    try{
+        const client = new MongoClient(uri, { useUnifiedTopology: true } );
+        await client.connect({native_parser:true});
+        const result = await client.db("qtcsdlhd").collection("product").find({"shop._id":ObjectID(shopId)}).toArray()
+        await client.close();
+        return result;
+    } catch(err){
+        throw err;
+    }
+}
+let getSearch = async(text,untext)=>{
+    try{
+        const client = new MongoClient(uri, { useUnifiedTopology: true } );
+        await client.connect({native_parser:true});
+        const sort = { "score": { "$meta": "textScore" } };
+        const result = await client.db("qtcsdlhd").collection("product").find({ "$text": { "$search": text + " -"+ untext} }).sort(sort).project({"name":1,score: { "$meta": "textScore" }}).toArray();
+        // { score: { "$meta": "textScore" } }
+        // ).sort( { score: { "$meta": "textScore" } }).toArray()
+        await client.close();
+        return result;
+    } catch(err){
+        throw err;
+    }
+}
 module.exports = {
     getDetail:getDetail,
     getByCategory:getByCategory,
@@ -221,5 +257,8 @@ module.exports = {
     getCategory_v2:getCategory_v2,
     getNoiBat:getNoiBat,
     findcategorybyname:findcategorybyname,
-    postShop:postShop
+    postShop:postShop,
+    getshop:getshop,
+    getshop1:getshop1,
+    getSearch:getSearch
 }
